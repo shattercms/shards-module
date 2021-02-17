@@ -5,13 +5,13 @@
   "keywords": [
     "shattercms"
   ],
-  "homepage": "https://github.com/shattercms/shards/blob/main/README.md",
+  "homepage": "https://github.com/shattercms/shards-module/blob/main/README.md",
   "repository": {
     "type": "git",
-    "url": "https://github.com/shattercms/shards.git"
+    "url": "https://github.com/shattercms/shards-module.git"
   },
   "bugs": {
-    "url": "https://github.com/shattercms/shards/issues"
+    "url": "https://github.com/shattercms/shards-module/issues"
   },
   "license": "MIT",
   "author": {
