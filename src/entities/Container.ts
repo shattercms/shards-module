@@ -17,5 +17,5 @@ export abstract class ShardContainer {
 
   @Field(() => [Shard])
   @OneToMany(() => Shard, (shard) => shard.container)
-  shards: Shard[];
+  shards!: Shard[];
 }

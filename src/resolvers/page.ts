@@ -12,7 +12,7 @@ import {
 import { getRepository } from 'typeorm';
 import { Layout } from '../entities/Layout';
 import { Page } from '../entities/Page';
-import { ShardContainerResolver } from './shardContainer';
+import { ShardContainerResolver } from './container';
 
 @InputType()
 class CreatePageInput {

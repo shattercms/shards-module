@@ -9,7 +9,7 @@ import {
 } from 'type-graphql';
 import { getRepository } from 'typeorm';
 import { Layout } from '../entities/Layout';
-import { ShardContainerResolver } from './shardContainer';
+import { ShardContainerResolver } from './container';
 
 @InputType()
 class CreateLayoutInput {

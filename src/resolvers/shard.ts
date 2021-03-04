@@ -11,7 +11,8 @@ import {
 } from 'type-graphql';
 import { Shard } from '../entities/Shard';
 import { getManager, getRepository } from 'typeorm';
-import { ShardContainer } from '../entities/ShardContainer';
+import { ShardContainer } from '../entities/Container';
+import { deepApply } from '../utils';
 
 @InputType()
 class CreateShardInput {
@@ -113,7 +114,7 @@ export class ShardResolver {
   }
 
   @Mutation(() => Boolean)
-  async shard_updateData(
+  async shard_applyChanges(
     @Arg('id', () => Int) id: number,
     @Arg('data') data: string
   ): Promise<boolean> {
@@ -129,10 +130,7 @@ export class ShardResolver {
       }
 
       // Parse data
-      let shardData = {};
-      if (shard.data) {
-        shardData = JSON.parse(shard.data);
-      }
+      const shardData = JSON.parse(shard.data);
       const updateData = JSON.parse(data);
 
       // Apply changes
@@ -202,27 +200,3 @@ export class ShardResolver {
     return getRepository(ShardContainer).findOne(shard.containerId);
   }
 }
-
-const deepApply = (data: any, changes: any) => {
-  Object.keys(changes).forEach((i) => {
-    // Replace whole array if size has shrunk
-    // All item data needs to be sent in this case
-    if (
-      Array.isArray(data[i]) &&
-      Array.isArray(changes[i]) &&
-      changes[i].length < data[i].length
-    ) {
-      data[i] = changes[i];
-      return;
-    }
-
-    // Apply nested changes
-    if (typeof data[i] === 'object' && typeof changes[i] === 'object') {
-      data[i] = deepApply(data[i], changes[i]);
-      return;
-    }
-
-    data[i] = changes[i];
-  });
-  return data;
-};

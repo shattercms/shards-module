@@ -1,6 +1,6 @@
 import { Field, Int, ObjectType } from 'type-graphql';
 import { ChildEntity, Column } from 'typeorm';
-import { ShardContainer } from './ShardContainer';
+import { ShardContainer } from './Container';
 
 @ObjectType()
 @ChildEntity()

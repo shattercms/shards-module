@@ -6,7 +6,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { ShardContainer } from './ShardContainer';
+import { ShardContainer } from './Container';
 
 @ObjectType()
 @Entity()
