@@ -14,9 +14,9 @@ import { ShardContainerResolver } from './container';
 @InputType()
 class CreateLayoutInput {
   @Field()
-  title: string;
+  title!: string;
   @Field()
-  description: string;
+  description!: string;
   @Field(() => Int, { nullable: true })
   bodyIndex?: number;
 }

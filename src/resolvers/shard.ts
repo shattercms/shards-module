@@ -17,13 +17,13 @@ import { deepApply } from '../utils';
 @InputType()
 class CreateShardInput {
   @Field(() => Int)
-  containerId: number;
+  containerId!: number;
   @Field()
-  type: string;
+  type!: string;
   @Field({ nullable: true })
   data?: string;
   @Field(() => Int)
-  order: number;
+  order!: number;
 }
 
 @InputType()

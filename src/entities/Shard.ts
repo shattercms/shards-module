@@ -23,15 +23,15 @@ export class Shard {
   @Column()
   order!: number;
 
-  @Field({ nullable: true })
-  @Column({ nullable: true })
-  data?: string;
+  @Field({ defaultValue: '{}' })
+  @Column({ default: '{}' })
+  data!: string;
 
   @Column()
-  containerId: number;
+  containerId!: number;
   @Field(() => ShardContainer)
   @ManyToOne(() => ShardContainer, (container) => container.shards, {
     onDelete: 'CASCADE',
   })
-  container: ShardContainer;
+  container!: ShardContainer;
 }

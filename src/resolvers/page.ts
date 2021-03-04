@@ -17,11 +17,11 @@ import { ShardContainerResolver } from './container';
 @InputType()
 class CreatePageInput {
   @Field()
-  path: string;
+  path!: string;
   @Field()
-  title: string;
+  title!: string;
   @Field()
-  description: string;
+  description!: string;
   @Field(() => Int, { nullable: true })
   layoutId?: number;
 }
