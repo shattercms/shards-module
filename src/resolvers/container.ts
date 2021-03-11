@@ -45,6 +45,7 @@ export abstract class ShardContainerResolver {
             data: change.data.data ?? '{}',
             type: change.data.type,
           });
+          container.shards.push(newShard);
           await shardRepo.save(newShard);
           continue;
         }
