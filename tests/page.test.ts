@@ -6,7 +6,7 @@ import {
   pageGetAllQuery,
   pageGetQuery,
   pageUpdateMutation,
-} from './requests';
+} from './utils/resources';
 
 // Handle database connection
 let connection: Connection;
