@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.3](https://github.com/shattercms/shards-module/compare/v0.4.2...v0.4.3) (2021-03-11)
+
+
+### Bug Fixes
+
+* add shards to container when applying changes ([7ef12a8](https://github.com/shattercms/shards-module/commit/7ef12a8b85360c0360fafa4159ca744816f46508))
+
 ### [0.4.2](https://github.com/shattercms/shards-module/compare/v0.4.1...v0.4.2) (2021-03-04)
 
 
