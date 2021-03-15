@@ -74,12 +74,8 @@ export abstract class ShardContainerResolver {
         let shard = container.shards.find((s) => s.id === id);
         if (!shard) throw new Error('Could not find the specified shard.');
 
-        console.log(shard);
-
         // Apply changes
         shard = applyShardChanges(shard, changes);
-
-        console.log(shard);
 
         // Save shard
         await shardRepo.save(shard);
