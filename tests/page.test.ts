@@ -2,11 +2,13 @@ import { Connection } from 'typeorm';
 import { getConnection, graphqlExecute } from './utils';
 import faker from 'faker';
 import {
+  fakePage,
   pageCreateMutation,
   pageGetAllQuery,
   pageGetQuery,
   pageUpdateMutation,
 } from './utils/resources';
+import { Page } from '../src';
 
 // Handle database connection
 let connection: Connection;
@@ -17,17 +19,12 @@ afterAll(async () => {
   await connection.close();
 });
 
-let page = {
-  path: '/',
-  title: faker.lorem.sentence(),
-  description: faker.lorem.paragraph(),
-} as any;
+let page = fakePage() as any;
 
 describe('Page Resolver', () => {
   it('Create page', async () => {
     const result = await graphqlExecute(pageCreateMutation, { params: page });
-    page.layout = null;
-    page.id = 1;
+    page.id = result.data?.page_create.id;
     expect(result).toMatchObject({
       data: { page_create: page },
     });
@@ -48,13 +45,6 @@ describe('Page Resolver', () => {
     const result = await graphqlExecute(pageGetQuery, { id: page.id });
     expect(result).toMatchObject({
       data: { page_get: page },
-    });
-  });
-
-  it('Get all pages', async () => {
-    const result = await graphqlExecute(pageGetAllQuery);
-    expect(result).toMatchObject({
-      data: { page_getAll: [page] },
     });
   });
 });
