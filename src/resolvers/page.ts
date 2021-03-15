@@ -40,29 +40,32 @@ class UpdatePageInput {
 
 @Resolver(Page)
 export class PageResolver extends ShardContainerResolver {
-  constructor(protected repository = getRepository(Page)) {
+  private pageRepo = getRepository(Page);
+  private layoutRepo = getRepository(Layout);
+
+  constructor() {
     super();
   }
 
   @Query(() => [Page])
   page_getAll() {
-    return this.repository.find();
+    return this.pageRepo.find();
   }
 
   @Query(() => Page, { nullable: true })
   page_get(@Arg('id', () => Int) id: number) {
-    return this.repository.findOne(id);
+    return this.pageRepo.findOne(id);
   }
 
   @Query(() => Page, { nullable: true })
   async page_at(@Arg('path', () => String) path: string) {
-    return this.repository.findOne({ where: { path } });
+    return this.pageRepo.findOne({ where: { path } });
   }
 
   @Mutation(() => Page)
   page_create(@Arg('params') params: CreatePageInput) {
-    const page = this.repository.create(params);
-    return this.repository.save(page);
+    const page = this.pageRepo.create(params);
+    return this.pageRepo.save(page);
   }
 
   @Mutation(() => Boolean)
@@ -70,21 +73,19 @@ export class PageResolver extends ShardContainerResolver {
     @Arg('id', () => Int) id: number,
     @Arg('params') params: UpdatePageInput
   ) {
-    await this.repository.update(id, params);
+    await this.pageRepo.update(id, params);
     return true;
   }
 
   @Mutation(() => Boolean)
   async page_delete(@Arg('id', () => Int) id: number) {
-    await this.repository.delete(id);
+    await this.pageRepo.delete(id);
     return true;
   }
 
   @FieldResolver(() => Page, { nullable: true })
   layout(@Root() page: Page) {
-    if (!page.layoutId) {
-      return;
-    }
-    return getRepository(Layout).findOne(page.layoutId);
+    if (!page.layoutId) return;
+    return this.layoutRepo.findOne(page.layoutId);
   }
 }

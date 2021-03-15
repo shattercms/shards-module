@@ -6,12 +6,11 @@ import {
   Mutation,
   Arg,
   Int,
-  ObjectType,
 } from 'type-graphql';
 import { getManager } from 'typeorm';
 import { Shard } from '../entities/Shard';
 import { ShardContainer } from '../entities/Container';
-import { applyChange, Diff } from 'deep-diff';
+import { Diff } from 'deep-diff';
 import { applyShardChanges } from '../utils';
 
 @Resolver(ShardContainer as ClassType, { isAbstract: true })

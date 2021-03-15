@@ -33,24 +33,26 @@ class UpdateLayoutInput {
 
 @Resolver(Layout)
 export class LayoutResolver extends ShardContainerResolver {
-  constructor(protected repository = getRepository(Layout)) {
+  private layoutRepo = getRepository(Layout);
+
+  constructor() {
     super();
   }
 
   @Query(() => [Layout])
   layout_getAll() {
-    return this.repository.find();
+    return this.layoutRepo.find();
   }
 
   @Query(() => Layout, { nullable: true })
   layout_get(@Arg('id', () => Int) id: number) {
-    return this.repository.findOne(id);
+    return this.layoutRepo.findOne(id);
   }
 
   @Mutation(() => Layout)
   layout_create(@Arg('params') params: CreateLayoutInput) {
-    const layout = this.repository.create(params);
-    return this.repository.save(layout);
+    const layout = this.layoutRepo.create(params);
+    return this.layoutRepo.save(layout);
   }
 
   @Mutation(() => Boolean)
@@ -58,13 +60,13 @@ export class LayoutResolver extends ShardContainerResolver {
     @Arg('id', () => Int) id: number,
     @Arg('params') params: UpdateLayoutInput
   ) {
-    await this.repository.update(id, params);
+    await this.layoutRepo.update(id, params);
     return true;
   }
 
   @Mutation(() => Boolean)
   async layout_delete(@Arg('id', () => Int) id: number) {
-    await this.repository.delete(id);
+    await this.layoutRepo.delete(id);
     return true;
   }
 }

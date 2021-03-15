@@ -9,10 +9,10 @@ export * from './entities';
 export * from './resolvers';
 
 import { Module } from '@shattercms/types';
-const shatterModule: Module = (context) => {
+const shardsModule: Module = (context) => {
   context.entities.push(...[Shard, Page, Layout, ShardContainer]);
   context.resolvers.push(
     ...[ShardResolver, PageResolver, LayoutResolver, ShardContainerResolver]
   );
 };
-export default shatterModule;
+export default shardsModule;

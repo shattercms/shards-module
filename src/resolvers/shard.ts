@@ -61,17 +61,17 @@ export class ShardResolver {
   }
 
   @Mutation(() => Boolean)
-  async shard_delete(@Arg('id', () => Int) id: number) {
-    await this.shardRepo.delete(id);
-    return true;
-  }
-
-  @Mutation(() => Boolean)
   async shard_update(
     @Arg('id', () => Int) id: number,
     @Arg('params') params: UpdateShardInput
   ) {
     await this.shardRepo.update(id, params);
+    return true;
+  }
+
+  @Mutation(() => Boolean)
+  async shard_delete(@Arg('id', () => Int) id: number) {
+    await this.shardRepo.delete(id);
     return true;
   }
 
