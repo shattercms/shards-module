@@ -10,9 +10,10 @@ import {
   Root,
 } from 'type-graphql';
 import { Shard } from '../entities/Shard';
-import { getManager, getRepository } from 'typeorm';
+import { getRepository } from 'typeorm';
 import { ShardContainer } from '../entities/Container';
-import { deepApply } from '../utils';
+import { Diff } from 'deep-diff';
+import { applyShardChanges } from '../utils';
 
 @InputType()
 class CreateShardInput {
@@ -22,8 +23,8 @@ class CreateShardInput {
   type!: string;
   @Field({ nullable: true })
   data?: string;
-  @Field(() => Int)
-  order!: number;
+  @Field(() => Int, { nullable: true })
+  order?: number;
 }
 
 @InputType()
@@ -32,74 +33,36 @@ class UpdateShardInput {
   type?: string;
   @Field({ nullable: true })
   data?: string;
+  @Field(() => Int, { nullable: true })
+  order?: number;
+  @Field(() => Int, { nullable: true })
+  containerId?: number;
 }
 
 @Resolver(Shard)
 export class ShardResolver {
-  constructor(protected repository = getRepository(Shard)) {}
+  private shardRepo = getRepository(Shard);
+  private containerRepo = getRepository(ShardContainer);
 
   @Query(() => [Shard])
   shard_getAll() {
-    return this.repository.find();
+    return this.shardRepo.find();
   }
 
   @Query(() => Shard, { nullable: true })
   shard_get(@Arg('id', () => Int) id: number) {
-    return this.repository.findOne(id);
+    return this.shardRepo.findOne(id);
   }
 
   @Mutation(() => Shard)
-  async shard_create(@Arg('params') params: CreateShardInput): Promise<Shard> {
-    // Create shard
-    const shard = this.repository.create(params);
-
-    // Start transaction
-    return getManager().transaction<Shard>(
-      async (transactionalEntityManager) => {
-        // Move all shards down by 1
-        await transactionalEntityManager
-          .createQueryBuilder()
-          .update(Shard)
-          .set({
-            order: () => '"order" + 1',
-          })
-          .where('containerId = :containerId', {
-            containerId: shard.containerId,
-          })
-          .andWhere('order >= :order', { order: shard.order })
-          .execute();
-
-        // Insert shard
-        return transactionalEntityManager.save(shard);
-      }
-    );
+  shard_create(@Arg('params') params: CreateShardInput) {
+    const shard = this.shardRepo.create(params);
+    return this.shardRepo.save(shard);
   }
 
   @Mutation(() => Boolean)
-  async shard_delete(@Arg('id', () => Int) id: number): Promise<boolean> {
-    // Find shard
-    const shard = await this.repository.findOne({ id });
-    if (!shard) {
-      throw new Error('Shard not found');
-    }
-
-    // Start transaction
-    await getManager().transaction(async (transactionalEntityManager) => {
-      // Move other shards to fill gap
-      await transactionalEntityManager
-        .createQueryBuilder()
-        .update(Shard)
-        .set({
-          order: () => '"order" - 1',
-        })
-        .where('containerId = :containerId', { containerId: shard.containerId })
-        .andWhere('order >= :order', { order: shard.order })
-        .execute();
-
-      // Delete shard
-      await transactionalEntityManager.delete(Shard, { id });
-    });
-
+  async shard_delete(@Arg('id', () => Int) id: number) {
+    await this.shardRepo.delete(id);
     return true;
   }
 
@@ -107,96 +70,36 @@ export class ShardResolver {
   async shard_update(
     @Arg('id', () => Int) id: number,
     @Arg('params') params: UpdateShardInput
-  ): Promise<boolean> {
-    // Update shard
-    await this.repository.update({ id }, { ...params });
+  ) {
+    await this.shardRepo.update(id, params);
     return true;
   }
 
   @Mutation(() => Boolean)
   async shard_applyChanges(
     @Arg('id', () => Int) id: number,
-    @Arg('data') data: string
-  ): Promise<boolean> {
-    // Start transaction
-    await getManager().transaction(async (transactionalEntityManager) => {
-      // Shift other shards accordingly
-      const repo = await transactionalEntityManager.getRepository(Shard);
-
-      // Get shard data
-      const shard = await repo.findOne(id);
-      if (!shard) {
-        throw new Error('Shard not found');
-      }
-
-      // Parse data
-      const shardData = JSON.parse(shard.data);
-      const updateData = JSON.parse(data);
-
-      // Apply changes
-      const newData = deepApply(shardData, updateData);
-
-      // Save data
-      shard.data = JSON.stringify(newData);
-      await repo.save(shard);
-    });
-
-    return true;
-  }
-
-  @Mutation(() => Boolean)
-  async shard_reorder(
-    @Arg('id', () => Int) id: number,
-    @Arg('order', () => Int) newOrder: number
-  ): Promise<boolean> {
-    // Find shard
-    const shard = await this.repository.findOne({ id });
+    @Arg('changes') changesJson: string
+  ) {
+    // Get shard
+    let shard = await this.shardRepo.findOne(id);
     if (!shard) {
       throw new Error('Shard not found');
     }
-    // Return if the shard is already at the correct spot
-    if (shard.order === newOrder) {
-      return true;
-    }
 
-    // Start transaction
-    await getManager().transaction(async (transactionalEntityManager) => {
-      // Shift other shards accordingly
-      const query = transactionalEntityManager
-        .createQueryBuilder()
-        .update(Shard);
+    // Parse changes
+    const changes = JSON.parse(changesJson) as Diff<Shard>[];
 
-      if (shard.order < newOrder) {
-        query
-          .set({
-            order: () => '"order" - 1',
-          })
-          .where('order > :order', { order: shard.order })
-          .andWhere('order <= :neworder', { neworder: newOrder });
-      } else {
-        query
-          .set({
-            order: () => '"order" + 1',
-          })
-          .where('order >= :neworder', { neworder: newOrder })
-          .andWhere('order < :order', { order: shard.order });
-      }
-      await query
-        .andWhere('containerId = :containerId', {
-          containerId: shard.containerId,
-        })
-        .execute();
+    // Apply changes
+    shard = applyShardChanges(shard, changes);
 
-      // Update shard
-      shard.order = newOrder;
-      await transactionalEntityManager.save(shard);
-    });
+    // Save shard
+    await this.shardRepo.save(shard);
 
     return true;
   }
 
   @FieldResolver(() => ShardContainer)
   container(@Root() shard: Shard) {
-    return getRepository(ShardContainer).findOne(shard.containerId);
+    return this.containerRepo.findOne(shard.containerId);
   }
 }

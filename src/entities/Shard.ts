@@ -19,8 +19,8 @@ export class Shard {
   @Column()
   type!: string;
 
-  @Field(() => Int)
-  @Column()
+  @Field(() => Int, { defaultValue: 0 })
+  @Column({ default: 0 })
   order!: number;
 
   @Field({ defaultValue: '{}' })
@@ -30,8 +30,6 @@ export class Shard {
   @Column()
   containerId!: number;
   @Field(() => ShardContainer)
-  @ManyToOne(() => ShardContainer, (container) => container.shards, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(() => ShardContainer, (container) => container.shards)
   container!: ShardContainer;
 }

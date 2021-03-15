@@ -6,29 +6,31 @@ import {
   Mutation,
   Arg,
   Int,
+  ObjectType,
 } from 'type-graphql';
 import { getManager } from 'typeorm';
 import { Shard } from '../entities/Shard';
 import { ShardContainer } from '../entities/Container';
-import { deepApply } from '../utils';
+import { applyChange, Diff } from 'deep-diff';
+import { applyShardChanges } from '../utils';
 
 @Resolver(ShardContainer as ClassType, { isAbstract: true })
 export abstract class ShardContainerResolver {
-  @Mutation(() => Boolean)
+  @Mutation(() => [[Number, Number]])
   async container_applyChanges(
     @Arg('id', () => Int) id: number,
     @Arg('changes') changesJson: string
-  ): Promise<boolean> {
+  ) {
     // Parse data
-    let changes: { type: string; data: any }[] = [];
-    changes = JSON.parse(changesJson);
+    const changes = JSON.parse(changesJson) as Diff<Shard | Diff<any>[]>[];
 
     // Start transaction
+    const idMappings: Array<[oldId: number, newId: number]> = [];
     await getManager().transaction(async (tem) => {
-      const shardRepo = await tem.getRepository(Shard);
-      const containerRepo = await tem.getRepository(ShardContainer);
+      const shardRepo = tem.getRepository(Shard);
+      const containerRepo = tem.getRepository(ShardContainer);
 
-      // Get container
+      // Get the container and shards
       const container = await containerRepo.findOne(id, {
         relations: ['shards'],
       });
@@ -36,57 +38,72 @@ export abstract class ShardContainerResolver {
         throw new Error('Container not found');
       }
 
-      // Apply changes
+      /* Handle adding a new shard */
+      const shardAdd = async (shard: Shard) => {
+        // Create a new shard
+        const newShard = shardRepo.create({
+          ...shard,
+          data: shard.data ? JSON.stringify(shard.data) : undefined,
+          containerId: container.id,
+        });
+
+        // Save the new shard to the database
+        const savedShard = await shardRepo.save(newShard);
+
+        // Add the new shard to the container
+        container.shards.push(savedShard);
+
+        // Save the assigned shard id, so it can be returned later
+        idMappings.push([shard.id, savedShard.id]);
+      };
+
+      /* Handle removing a shard */
+      const shardRemove = async (shard: Shard) => {
+        // Remove shard from database
+        await shardRepo.delete({ id: shard.id });
+
+        // Remove shard from the container
+        const index = container.shards.findIndex((s) => s.id === shard.id);
+        if (index > -1) {
+          container.shards.splice(index, 1);
+        }
+      };
+
+      /* Handle editing a shard */
+      const shardEdit = async (id: number, changes: Diff<any>[]) => {
+        // Get shard
+        let shard = container.shards.find((s) => s.id === id);
+        if (!shard) throw new Error('Could not find the specified shard.');
+
+        console.log(shard);
+
+        // Apply changes
+        shard = applyShardChanges(shard, changes);
+
+        console.log(shard);
+
+        // Save shard
+        await shardRepo.save(shard);
+      };
+
+      // Loop through and handle all changes
       for (const change of changes) {
-        if (change.type === 'add') {
-          const newShard = shardRepo.create({
-            containerId: container.id,
-            order: change.data.order ?? 0,
-            data: change.data.data ?? '{}',
-            type: change.data.type,
-          });
-          container.shards.push(newShard);
-          await shardRepo.save(newShard);
-          continue;
-        }
-        if (change.type === 'remove') {
-          await shardRepo.delete({ id: change.data });
-          continue;
-        }
-        if (change.type === 'edit') {
-          const data = change.data as { id: number; changes: any };
-          const shard = container.shards.find((s) => s.id === data.id);
-          if (!shard) {
-            throw new Error('Shard not found');
-          }
-          let shardData = {};
-          if (shard.data) {
-            shardData = JSON.parse(shard.data);
-          }
-          const newData = deepApply(shardData, data.changes);
-          shard.data = JSON.stringify(newData);
-          await shardRepo.save(shard);
-          continue;
-        }
-        if (change.type === 'order') {
-          const orders = change.data as { id: number; order: number }[];
-          for (const order of orders) {
-            const shard = await shardRepo.findOne(order.id);
-            if (!shard) {
-              throw new Error('Shard not found');
-            }
-            shard.order = order.order;
-            await shardRepo.save(shard);
-          }
-          continue;
+        if (change.path) {
+          // Handle shard edit operations
+          if (change.kind === 'E' && change.path.length === 1)
+            await shardEdit(change.path[0], change.lhs as Diff<any>[]);
+        } else {
+          // Handle shard add / remove operations
+          if (change.kind === 'N') await shardAdd(change.rhs as Shard);
+          if (change.kind === 'D') await shardRemove(change.lhs as Shard);
         }
       }
 
-      // Update container
+      // Save container
       await containerRepo.save(container);
     });
 
-    return true;
+    return idMappings;
   }
 
   @FieldResolver()
@@ -100,3 +117,12 @@ export abstract class ShardContainerResolver {
     return items;
   }
 }
+
+const replaceId = (
+  id: number,
+  replaceMappings: Array<[oldId: number, newId: number]>
+) => {
+  const newId = replaceMappings.find((x) => x[0] === id)?.[1];
+  if (newId) return newId;
+  return id;
+};
