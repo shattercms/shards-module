@@ -1,14 +1,6 @@
 import { Connection } from 'typeorm';
 import { getConnection, graphqlExecute } from './utils';
-import faker from 'faker';
-import {
-  fakePage,
-  pageCreateMutation,
-  pageGetAllQuery,
-  pageGetQuery,
-  pageUpdateMutation,
-} from './utils/resources';
-import { Page } from '../src';
+import * as resources from './utils/resources';
 
 // Handle database connection
 let connection: Connection;
@@ -19,11 +11,13 @@ afterAll(async () => {
   await connection.close();
 });
 
-let page = fakePage() as any;
+let page = resources.fakePage() as any;
 
 describe('Page Resolver', () => {
   it('Create page', async () => {
-    const result = await graphqlExecute(pageCreateMutation, { params: page });
+    const result = await graphqlExecute(resources.pageCreateMutation, {
+      params: page,
+    });
     page.id = result.data?.page_create.id;
     expect(result).toMatchObject({
       data: { page_create: page },
@@ -31,7 +25,7 @@ describe('Page Resolver', () => {
   });
 
   it('Update page', async () => {
-    const result = await graphqlExecute(pageUpdateMutation, {
+    const result = await graphqlExecute(resources.pageUpdateMutation, {
       id: page.id,
       params: { path: '/test' },
     });
@@ -42,7 +36,9 @@ describe('Page Resolver', () => {
   });
 
   it('Get page', async () => {
-    const result = await graphqlExecute(pageGetQuery, { id: page.id });
+    const result = await graphqlExecute(resources.pageGetQuery, {
+      id: page.id,
+    });
     expect(result).toMatchObject({
       data: { page_get: page },
     });

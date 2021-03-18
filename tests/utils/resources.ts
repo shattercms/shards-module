@@ -1,5 +1,4 @@
 import faker from 'faker';
-import { graphqlExecute } from '.';
 
 export const pageGetQuery = `
 query pageGet($id: Int!) {
