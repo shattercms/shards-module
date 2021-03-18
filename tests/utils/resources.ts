@@ -11,6 +11,17 @@ query pageGet($id: Int!) {
 }
 `;
 
+export const pageAtQuery = `
+query pageGet($path: String!) {
+  page_at(path: $path) {
+    page {
+      path
+    }
+    params
+  }
+}
+`;
+
 export const pageGetAllQuery = `
 query pageGetAll {
   page_getAll {

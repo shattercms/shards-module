@@ -51,6 +51,7 @@
   },
   "dependencies": {
     "@shattercms/types": "^0.5.1",
-    "deep-diff": "^1.0.2"
+    "deep-diff": "^1.0.2",
+    "path-to-regexp": "^6.2.0"
   }
 }

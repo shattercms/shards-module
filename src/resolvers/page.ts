@@ -5,6 +5,7 @@ import {
   InputType,
   Int,
   Mutation,
+  ObjectType,
   Query,
   Resolver,
   Root,
@@ -13,6 +14,7 @@ import { getRepository } from 'typeorm';
 import { Layout } from '../entities/Layout';
 import { Page } from '../entities/Page';
 import { ShardContainerResolver } from './container';
+import { match as regexMatch } from 'path-to-regexp';
 
 @InputType()
 class CreatePageInput {
@@ -38,6 +40,14 @@ class UpdatePageInput {
   layoutId?: number;
 }
 
+@ObjectType()
+class PageAtResult {
+  @Field()
+  page!: Page;
+  @Field(() => [[String]])
+  params!: Array<[name: string, value: string]>;
+}
+
 @Resolver(Page)
 export class PageResolver extends ShardContainerResolver {
   private pageRepo = getRepository(Page);
@@ -57,9 +67,41 @@ export class PageResolver extends ShardContainerResolver {
     return this.pageRepo.findOne(id);
   }
 
-  @Query(() => Page, { nullable: true })
-  async page_at(@Arg('path', () => String) path: string) {
-    return this.pageRepo.findOne({ where: { path } });
+  @Query(() => PageAtResult, { nullable: true })
+  async page_at(@Arg('path') path: string): Promise<PageAtResult | null> {
+    const pages = await this.pageRepo.find();
+
+    let bestLength = Infinity;
+    const result = {
+      page: null as Page | null,
+      params: {} as { [key: string]: string },
+    };
+
+    // Find best match
+    pages.forEach((page) => {
+      const match = regexMatch(page.path, {
+        encode: encodeURI,
+        decode: decodeURIComponent,
+      });
+      const matches = match(path);
+      // Prefer more precise matches
+      if (!matches || Object.keys(matches.params).length > bestLength) return;
+
+      result.page = page;
+      result.params = matches.params as { [key: string]: string };
+    });
+    if (!result.page) return null;
+
+    // Format parameters
+    const paramsArray = [] as [name: string, value: string][];
+    for (const key in result.params) {
+      paramsArray.push([key, result.params[key]]);
+    }
+
+    return {
+      page: result.page,
+      params: paramsArray,
+    };
   }
 
   @Mutation(() => Page)
