@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.5](https://github.com/shattercms/shards-module/compare/v0.4.4...v0.4.5) (2021-03-18)
+
+
+### Features
+
+* match path patterns in page at query ([946a605](https://github.com/shattercms/shards-module/commit/946a6053da132a9b48d8545d1d805ba1759dd217))
+
 ### [0.4.4](https://github.com/shattercms/shards-module/compare/v0.4.3...v0.4.4) (2021-03-15)
 
 
