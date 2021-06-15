@@ -10,7 +10,7 @@ import {
 import { getManager } from 'typeorm';
 import { Shard } from '../entities/Shard';
 import { ShardContainer } from '../entities/Container';
-import { Diff } from 'deep-diff';
+import type { Diff } from 'deep-diff';
 import { applyShardChanges } from '../utils';
 
 @Resolver(ShardContainer as ClassType, { isAbstract: true })
@@ -112,12 +112,3 @@ export abstract class ShardContainerResolver {
     return items;
   }
 }
-
-const replaceId = (
-  id: number,
-  replaceMappings: Array<[oldId: number, newId: number]>
-) => {
-  const newId = replaceMappings.find((x) => x[0] === id)?.[1];
-  if (newId) return newId;
-  return id;
-};

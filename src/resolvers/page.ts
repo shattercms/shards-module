@@ -84,12 +84,17 @@ export class PageResolver extends ShardContainerResolver {
         decode: decodeURIComponent,
       });
       const matches = match(path);
+
       // Prefer more precise matches
-      if (!matches || Object.keys(matches.params).length > bestLength) return;
+      if (!matches) return;
+      const matchCount = Object.keys(matches.params).length;
+      if (matchCount > bestLength) return;
 
       result.page = page;
       result.params = matches.params as { [key: string]: string };
+      bestLength = matchCount;
     });
+
     if (!result.page) return null;
 
     // Format parameters

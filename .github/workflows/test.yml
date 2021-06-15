@@ -15,7 +15,7 @@ jobs:
         image: postgis/postgis:12-master
         env:
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: cms-test
+          POSTGRES_DB: shattercms-test
         ports:
           - 5432:5432
         # needed because the postgres container does not provide a healthcheck
@@ -35,7 +35,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn
 
       - name: Run tests
         run: yarn test

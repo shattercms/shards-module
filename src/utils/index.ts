@@ -1,5 +1,5 @@
 import { applyChange, Diff } from 'deep-diff';
-import { Shard } from '../entities';
+import type { Shard } from '../entities';
 
 export const applyShardChanges = (shard: Shard, changes: Diff<Shard>[]) => {
   // Parse shard data

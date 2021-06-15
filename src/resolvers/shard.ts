@@ -12,7 +12,7 @@ import {
 import { Shard } from '../entities/Shard';
 import { getRepository } from 'typeorm';
 import { ShardContainer } from '../entities/Container';
-import { Diff } from 'deep-diff';
+import type { Diff } from 'deep-diff';
 import { applyShardChanges } from '../utils';
 
 @InputType()

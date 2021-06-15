@@ -1,0 +1,12 @@
+overwrite: true
+schema: tests/graphql/schema.gql
+documents:
+  - 'tests/graphql/**/*.ts'
+  - '!tests/graphql/index.ts'
+generates:
+  tests/graphql/index.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+    config:
+      skipTypename: true

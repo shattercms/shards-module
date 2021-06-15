@@ -8,8 +8,10 @@ import {
 export * from './entities';
 export * from './resolvers';
 
-import { Module } from '@shattercms/types';
-const shardsModule: Module = (context) => {
+export interface ShardModuleOptions {}
+
+import type { Module } from '@shattercms/types';
+const shardsModule: Module<ShardModuleOptions> = (context) => {
   context.entities.push(...[Shard, Page, Layout, ShardContainer]);
   context.resolvers.push(
     ...[ShardResolver, PageResolver, LayoutResolver, ShardContainerResolver]

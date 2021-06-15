@@ -1,61 +1,3 @@
-import faker from 'faker';
-
-export const pageGetQuery = `
-query pageGet($id: Int!) {
-  page_get(id: $id) {
-    id
-    path
-    title
-    description
-  }
-}
-`;
-
-export const pageAtQuery = `
-query pageGet($path: String!) {
-  page_at(path: $path) {
-    page {
-      path
-    }
-    params
-  }
-}
-`;
-
-export const pageGetAllQuery = `
-query pageGetAll {
-  page_getAll {
-    id
-    path
-    title
-    description
-  }
-}
-`;
-
-export const pageCreateMutation = `
-mutation pageCreate($params: CreatePageInput!) {
-  page_create(params: $params) {
-    id
-    path
-    title
-    description
-  }
-}
-`;
-
-export const pageUpdateMutation = `
-mutation pageUpdate($id: Int!, $params: UpdatePageInput!) {
-  page_update(id: $id, params: $params)
-}
-`;
-
-export const containerApplyChanges = `
-mutation pageCreate($id: Int!, $changes: String!) {
-  container_applyChanges(id: $id, changes: $changes)
-}
-`;
-
 export const changesAdd = () =>
   `[{"kind":"N","rhs":{"type":"common-text-block","id":-1,"data":{"text":"here be dragons"},"order":0}}]`;
 export const changesAddAnother = (id: number) =>
@@ -89,9 +31,3 @@ export const changesCreateEditOrder = JSON.stringify([
     data: { order: [[-1, 1]] },
   },
 ]);
-
-export const fakePage = () => ({
-  path: '/' + faker.lorem.slug().replace(' ', '-'),
-  title: faker.lorem.sentence(),
-  description: faker.lorem.paragraph(),
-});
