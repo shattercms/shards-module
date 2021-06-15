@@ -1,6 +1,6 @@
 {
   "name": "@shattercms/shards",
-  "version": "0.4.6",
+  "version": "0.4.7",
   "description": "ShatterCMS submodule for handling block-based web content.",
   "keywords": [
     "shattercms"
