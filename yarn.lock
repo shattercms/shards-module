@@ -1531,10 +1531,10 @@ __metadata:
     "@graphql-codegen/typescript": ^1.22.1
     "@graphql-codegen/typescript-operations": ^1.18.0
     "@shattercms/types": ^0.7.0
-    "@types/deep-diff": ^1
+    "@types/deep-diff": ^1.0.0
     "@types/jest": ^26.0.23
-    "@types/node": ^15.6.2
-    "@types/prettier": ^2
+    "@types/node": ^15.12.2
+    "@types/prettier": ^2.3.0
     class-validator: ^0.13.1
     deep-diff: ^1.0.2
     graphql: ^15.5.0
@@ -1542,10 +1542,10 @@ __metadata:
     path-to-regexp: ^6.2.0
     prettier: ^2.3.1
     standard-version: ^9.3.0
-    ts-jest: ^27.0.2
+    ts-jest: ^27.0.3
     ts-node: ^10.0.0
     type-graphql: ^1.1.1
-    typeorm: ^0.2.33
+    typeorm: ^0.2.34
     typescript: ^4.3.2
   languageName: unknown
   linkType: soft
@@ -1680,7 +1680,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/deep-diff@npm:^1":
+"@types/deep-diff@npm:^1.0.0":
   version: 1.0.0
   resolution: "@types/deep-diff@npm:1.0.0"
   checksum: 02e6341b9a94b8eb4105b77c480ecb868a62cc0a1137c9600f3ccc53036387425a2f821324f29f2af2d88fbfef039cd9b283f5ebcd695e8b183cfe0cb70c3c72
@@ -1796,7 +1796,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^15.6.2":
+"@types/node@npm:*, @types/node@npm:^15.12.2":
   version: 15.12.2
   resolution: "@types/node@npm:15.12.2"
   checksum: 26b9170eb825656751955e919dcea7963d1be4d1eba361c67e41b51a55436c51d69d63f49ee98aaf4fe2e0e5eb3c0038408a8f542316b7583e9badf4fdd10024
@@ -1817,7 +1817,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/prettier@npm:^2, @types/prettier@npm:^2.1.5":
+"@types/prettier@npm:^2.1.5, @types/prettier@npm:^2.3.0":
   version: 2.3.0
   resolution: "@types/prettier@npm:2.3.0"
   checksum: 7c1ef16234220519d52b8a154723caf5c5dc9d5eaa85bfe06e367ba57472dab7f7fdac1ca7c29d9010d58f74f3b5235a9f8bad0111d9bad74018eb8141371e7e
@@ -8892,7 +8892,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-jest@npm:^27.0.2":
+"ts-jest@npm:^27.0.3":
   version: 27.0.3
   resolution: "ts-jest@npm:27.0.3"
   dependencies:
@@ -9101,7 +9101,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typeorm@npm:^0.2.33, typeorm@npm:^0.2.34":
+"typeorm@npm:^0.2.34":
   version: 0.2.34
   resolution: "typeorm@npm:0.2.34"
   dependencies:
